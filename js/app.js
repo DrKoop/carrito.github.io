@@ -10,6 +10,13 @@ let articulosCarrito = [];
 cargarEventListeners();
 function cargarEventListeners(){
     listaCursos.addEventListener('click', agregarCurso)
+    /* Elimina los cursos  */
+    carrito.addEventListener('click', eliminarCurso)
+    /* Vaciar Carrito */
+    vaciarCarritoBtn.addEventListener('click', () => {
+        articulosCarrito = [];
+        limpiarHTML();
+    })
 }
 
 /* -------------------------------------------------------------------------- */
@@ -20,6 +27,17 @@ function agregarCurso(e){
     if( e.target.classList.contains('agregar-carrito') ){
         const cursoSeleccionado = e.target.parentElement.parentElement
         leerDatos(cursoSeleccionado);
+    }
+}
+
+/* Elimina los elementos del carrito */
+
+function eliminarCurso(e){
+    if(e.target.classList.contains('borrar-curso')){
+        const cursoId = e.target.getAttribute('data-id')
+        /* Elimina por el data-id */
+        articulosCarrito = articulosCarrito.filter( curso => curso.id !== cursoId )
+        carritoHTML()
     }
 }
 
@@ -39,9 +57,25 @@ function leerDatos(curso){
     }
     //console.log(infoCurso)
 
-    /* Agrega los elementos seleccionados al array vacío */
-    articulosCarrito = [...articulosCarrito, infoCurso]
-    console.log(articulosCarrito)
+    /* Revisar que no existan elementos repetidos */
+    const existe = articulosCarrito.some( curso =>  curso.id === infoCurso.id )
+    console.log(existe)
+    if(existe){
+        /* Actualiza la cantidad */
+        const cursos = articulosCarrito.map(curso =>{
+            if( curso.id === infoCurso.id ){
+                curso.cantidad++;
+                return curso;
+            }else{
+                return curso;
+            }
+        })
+        articulosCarrito = [...cursos]
+    }else{
+        /* Agrega los elementos seleccionados al array vacío */
+        articulosCarrito = [...articulosCarrito, infoCurso]
+    }
+    //console.log(articulosCarrito)
     carritoHTML()
 }
 
@@ -55,28 +89,34 @@ function carritoHTML(){
 
     /* Recorre el carrito y genera el HTML */
     articulosCarrito.forEach( curso => {
-        console.log(curso)
+        //console.log(curso)
+
+        const {imagen, titulo, precio, cantidad, id } = curso;
 
         const row = document.createElement('tr')
         row.innerHTML = 
         
         `
         <td>
-            <img src ="${curso.imagen}" width="100">
+            <img src ="${imagen}" width="100">
         </td>
 
         <td>
-            ${curso.titulo}
+            ${titulo}
         </td>
 
         <td>
-        ${curso.precio}
+            ${precio}
         </td>
 
         <td>
-        ${curso.cantidad}
+            ${cantidad}
         </td>
-        
+
+        <td>
+            <a href="#" class="borrar-curso" data-id="${id}"> X </a>
+        </td>
+
         `;
 
         /* Inyectando HTML en el tbdoy */
